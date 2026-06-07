@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -11,14 +12,13 @@ import (
 )
 
 type data struct {
-	Url    string `json:"url"`
-	Price  int    `json:"price"`
-	Status int    `json:"status"`
+	Url           string  `json:"url"`
+	Price         float64 `json:"price"`
+	Status        int     `json:"status"`
+	PriceDiscount float64 `json:"discount"`
 }
 
-func (output *data) getPrice() data {
-
-	url := "https://www.bol.com/nl/nl/p/knip-sleuteltang-8603125/9200000076969628"
+func (output *data) getPrice(url string, p float64) data {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -31,7 +31,6 @@ func (output *data) getPrice() data {
 	// if err != nil {
 	// 	log.Println(err)
 	// }
-	defer resp.Body.Close()
 
 	// body, err := io.ReadAll(resp.Body)
 	// if err != nil {
@@ -43,22 +42,29 @@ func (output *data) getPrice() data {
 		log.Println(err)
 	}
 
+	defer resp.Body.Close()
 	price := doc.Find("span.row-span-2").First().Text()
 	// fmt.Println(string(output))
 	output.Status = resp.StatusCode
 	output.Url = url
 	if price != "" {
-		output.Price, err = strconv.Atoi(price)
+		output.Price, err = strconv.ParseFloat(price, 64)
 	}
 	if err != nil {
 		log.Println(err)
+	}
+	if output.Price < p {
+		output.PriceDiscount = (p - output.Price) / p * 100
 	}
 	return *output
 }
 
 func main() {
+	url := flag.String("url", "https://www.bol.com/nl/nl/p/pd-tang-cv-waterpomptang-29-cm-isolatie-grip-12-profi-stalen-tang-met-softgrip-handvat/9300000160855987", "Set url to be Checked")
+	priceAlert := flag.Float64("set", 10, "Set Alarm Price Threshold, expected below this threshold")
+	flag.Parse()
 	var output data
-	data := output.getPrice()
+	data := output.getPrice(*url, *priceAlert)
 	json.NewEncoder(os.Stdout).Encode(data)
 
 }

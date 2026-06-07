@@ -1,6 +1,6 @@
 #!/bin/env sh 
 
-## Set alert price -- Only Euro. Not cent --
+## Set alert price threhold. If price below that threhold alarm will be triggered. -- Only Euro. Not cent --
 setPrice=30
 
 ## Set bol.com url to be watching -- 

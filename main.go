@@ -25,7 +25,8 @@ func (output *data) getPrice(url string, p float64) data {
 		log.Println(err)
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 OPR/94.0.0.0")
-
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
 	resp, err := http.DefaultClient.Do(req)
 	// _, err = io.ReadAll(resp.Body)
 	// if err != nil {
